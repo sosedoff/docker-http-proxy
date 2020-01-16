@@ -7,6 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"time"
 )
 
 type config struct {
@@ -49,6 +50,16 @@ func main() {
 	proxy := httputil.NewSingleHostReverseProxy(cfg.target)
 
 	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
+		log.Printf(
+			"src=%q host=%q method=%q path=%q agent=%q time=%q\n",
+			req.RemoteAddr,
+			req.Host,
+			req.Method,
+			req.URL.Path,
+			req.UserAgent(),
+			time.Now().Format(time.RFC3339),
+		)
+
 		// Redirect the home page to some other path
 		if req.URL.Path == "/" && cfg.redirectRoot != "" {
 			http.Redirect(rw, req, cfg.redirectRoot, 302)
